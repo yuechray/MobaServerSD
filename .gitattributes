@@ -1,0 +1,15 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# C# source — always LF
+*.cs    text eol=lf
+*.csproj text eol=lf
+*.sln   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+
+# Binary — don't touch
+*.wasm  binary
+*.png   binary
+*.jpg   binary
+*.dll   binary
