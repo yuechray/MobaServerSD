@@ -63,9 +63,14 @@ public static partial class Module
         ctx.Db.GameState.Id.Update(state with { Phase = GamePhase.Lobby, WinnerTeam = Team.None, Countdown = 0 });
 
         foreach (var c  in ctx.Db.Champion.Iter().ToList())    ctx.Db.Champion.Id.Delete(c.Id);
-        foreach (var s  in ctx.Db.Structure.Iter().ToList())   ctx.Db.Structure.Id.Delete(s.Id);
-        foreach (var cr in ctx.Db.Creep.Iter().ToList())       ctx.Db.Creep.Id.Delete(cr.Id);
         foreach (var lp in ctx.Db.LobbyPlayer.Iter().ToList()) ctx.Db.LobbyPlayer.PlayerId.Delete(lp.PlayerId);
+
+        // Delete wave creeps but keep neutral creeps
+        foreach (var cr in ctx.Db.Creep.Iter().ToList())
+            if (cr.Type == CreepType.Wave) ctx.Db.Creep.Id.Delete(cr.Id);
+
+        ResetAllStructures(ctx);
+        ResetAllNeutralCreeps(ctx);
 
         Log.Info("[MOBA] Match reset — back to Lobby");
     }

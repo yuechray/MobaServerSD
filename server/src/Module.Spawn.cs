@@ -58,6 +58,14 @@ public static partial class Module
         SpawnStructure(ctx, Team.Radiant, StructureType.Tower, Lane.Bottom, RadiantBotT2, cfg);
         SpawnStructure(ctx, Team.Dire,    StructureType.Tower, Lane.Bottom, DireBotT1,    cfg);
         SpawnStructure(ctx, Team.Dire,    StructureType.Tower, Lane.Bottom, DireBotT2,    cfg);
+
+        // Forward towers (T0) — pushed toward center
+        SpawnStructure(ctx, Team.Radiant, StructureType.Tower, Lane.Mid,    RadiantMidT0, cfg);
+        SpawnStructure(ctx, Team.Dire,    StructureType.Tower, Lane.Mid,    DireMidT0,    cfg);
+        SpawnStructure(ctx, Team.Radiant, StructureType.Tower, Lane.Top,    RadiantTopT0, cfg);
+        SpawnStructure(ctx, Team.Dire,    StructureType.Tower, Lane.Top,    DireTopT0,    cfg);
+        SpawnStructure(ctx, Team.Radiant, StructureType.Tower, Lane.Bottom, RadiantBotT0, cfg);
+        SpawnStructure(ctx, Team.Dire,    StructureType.Tower, Lane.Bottom, DireBotT0,    cfg);
     }
 
     private static void SpawnStructure(ReducerContext ctx, Team team, StructureType type, Lane lane, DbVec3 pos, Config cfg)
@@ -118,6 +126,44 @@ public static partial class Module
                     WaypointIndex   = 0,
                 });
             }
+        }
+    }
+
+    private static void ResetAllStructures(ReducerContext ctx)
+    {
+        var cfg = ctx.Db.Config.Id.Find(0)!.Value;
+        foreach (var s in ctx.Db.Structure.Iter().ToList())
+        {
+            float hp = s.Type == StructureType.Throne ? cfg.ThroneMaxHealth : cfg.TowerMaxHealth;
+            ctx.Db.Structure.Id.Update(s with
+            {
+                Health           = hp,
+                IsDestroyed      = false,
+                AttackTargetId   = 0,
+                AttackTargetKind = TargetKind.None,
+                LastAttackTime   = 0,
+            });
+        }
+    }
+
+    private static void ResetAllNeutralCreeps(ReducerContext ctx)
+    {
+        var cfg = ctx.Db.Config.Id.Find(0)!.Value;
+        foreach (var c in ctx.Db.Creep.Iter().ToList())
+        {
+            if (c.Type != CreepType.Neutral) continue;
+            var campPos = NeutralCamps.First(nc => nc.id == c.CampId).pos;
+            ctx.Db.Creep.Id.Update(c with
+            {
+                Position         = campPos,
+                Destination      = campPos,
+                Health           = cfg.NeutralMaxHealth,
+                State            = CreepState.Idle,
+                AttackTargetKind = TargetKind.None,
+                AttackTargetId   = 0,
+                LastAttackTime   = 0,
+                DeathTime        = 0,
+            });
         }
     }
 

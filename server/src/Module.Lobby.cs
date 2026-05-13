@@ -88,7 +88,7 @@ public static partial class Module
             .Where(p => p.IsConnected)
             .ToList();
 
-        if (connected.Count < 2) return;
+        if (connected.Count < 1) return;
         if (connected.Any(p => p.Team == Team.None)) return;
         if (connected.Any(p => !p.IsReady)) return;
 
@@ -104,8 +104,6 @@ public static partial class Module
         var cfg = ctx.Db.Config.Id.Find(0)!.Value;
 
         SpawnAllChampions(ctx, players, cfg);
-        SpawnAllStructures(ctx, cfg);
-        SpawnNeutralCreeps(ctx, cfg);
 
         Log.Info("[MOBA] Match started!");
     }

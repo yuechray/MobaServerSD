@@ -59,6 +59,11 @@ public static partial class Module
             ScheduledAt = new ScheduleAt.Interval(TimeSpan.FromSeconds(30))
         });
 
+        // Structures and neutral creeps are seeded once — they persist across matches
+        var cfg = ctx.Db.Config.Id.Find(0)!.Value;
+        SpawnAllStructures(ctx, cfg);
+        SpawnNeutralCreeps(ctx, cfg);
+
         Log.Info("[MOBA] Server initialised");
     }
 
